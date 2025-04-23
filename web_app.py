@@ -9,7 +9,7 @@ analysis_status = {"running": False, "completed": False, "error": None}
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('results.html')
 
 @app.route('/word_cloud')
 def word_cloud():
