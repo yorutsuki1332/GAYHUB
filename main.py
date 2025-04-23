@@ -14,6 +14,7 @@ def home():
 
 @app.route('/scrape', methods=['POST'])
 def scrape_reviews():
+    app.logger.info(f"Received request with method: {request.method}")  # Log the request method
     url = request.form.get('restaurant_url')
     if not url:
         return "Error: No URL provided", 400
