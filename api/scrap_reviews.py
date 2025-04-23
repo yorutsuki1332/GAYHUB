@@ -1,16 +1,22 @@
+
 import json
 import os
+import sys
 from playwright.sync_api import sync_playwright
+from src.main import main as analyze_reviews
 
-def scrape_full_reviews_to_json(output_file="gayhub/data/reviews.json", max_pages=None):
+# Ensure UTF-8 encoding for console output
+sys.stdout.reconfigure(encoding='utf-8')
+
+def scrape_full_reviews_to_json(url, output_file="gayhub-main/data/reviews.json", max_pages=5):
     """
     Scrapes reviews from OpenRice across multiple pages and saves them to a JSON file.
     
     Args:
+        url (str): The URL of the restaurant to scrape reviews from.
         output_file (str): The path to the JSON file where reviews will be saved.
         max_pages (int, optional): Maximum number of pages to scrape. Scrapes all pages if None.
     """
-    url = "https://www.openrice.com/zh/hongkong/r-%E6%98%A5%E5%AE%B5-%E7%81%A3%E4%BB%94-%E6%B8%AF%E5%BC%8F-%E7%81%AB%E9%8D%8B-r799592/reviews"
 
     with sync_playwright() as p:
         # Launch browser in headless mode
@@ -40,8 +46,15 @@ def scrape_full_reviews_to_json(output_file="gayhub/data/reviews.json", max_page
             while True:
                 print(f"Scraping page {current_page}...")
 
-                # Wait for the main review container to load
-                page.wait_for_selector("div.sr2-review-list-container")
+                # Wait for the main review container to load with increased timeout
+                page.wait_for_selector("div.sr2-review-list-container", timeout=60000)  # Increased timeout to 60 seconds
+
+                # Debugging log to confirm page navigation
+                print(f"Navigated to URL: {url}")
+
+                # Check if the selector exists before proceeding
+                if not page.locator("div.sr2-review-list-container").count():
+                    raise Exception("Review container not found on the page. Please verify the URL or page structure.")
 
                 # Locate review containers
                 review_containers = page.locator("div.sr2-review-list-container")
@@ -109,18 +122,19 @@ def scrape_full_reviews_to_json(output_file="gayhub/data/reviews.json", max_page
             # Ensure the output directory exists
             os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-            # Save reviews to a JSON file in the specified directory
+            # Save reviews to a JSON file in the specified directory with UTF-8 encoding
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(all_reviews, f, ensure_ascii=False, indent=4)
 
             print(f"📦 Reviews saved to {output_file}")
+
+            # Automatically pass the data to main.py for further analysis
+            print("Starting analysis of the scraped data...")
+            analyze_reviews()
+            print("Analysis completed. Results are available in result.html.")
 
         except Exception as e:
             print(f"An error occurred during the scraping process: {e}")
 
         finally:
             browser.close()
-
-# Run the scraper
-if __name__ == "__main__":
-    scrape_full_reviews_to_json(max_pages=5)  # Scrape up to 5 pages
