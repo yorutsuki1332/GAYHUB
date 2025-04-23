@@ -8,7 +8,7 @@ from src.main import main as analyze_reviews
 # Ensure UTF-8 encoding for console output
 sys.stdout.reconfigure(encoding='utf-8')
 
-def scrape_full_reviews_to_json(url, output_file="gayhub-main/data/reviews.json", max_pages=5):
+def scrape_full_reviews_to_json(url, output_file="data/reviews.json", max_pages=5):
     """
     Scrapes reviews from OpenRice across multiple pages and saves them to a JSON file.
     
