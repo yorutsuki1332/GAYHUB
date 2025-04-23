@@ -1,2 +1,0 @@
-﻿# gpmlQQ
-# meowmeownigga
