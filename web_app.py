@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify
-from main import main as analyze_reviews
+import src.main as analyze_reviews
 import threading
 import json
 from model.word_cloud_analyzer import WordCloudAnalyzer
