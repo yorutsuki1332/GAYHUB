@@ -14,13 +14,20 @@ def home():
 
 @app.route('/scrape', methods=['POST'])
 def scrape_reviews():
-    app.logger.info(f"Received request with method: {request.method}")  # Log the request method
+    # Log the request method to debug
+    app.logger.info(f"Received request with method: {request.method}")
+    
     url = request.form.get('restaurant_url')
     if not url:
         return "Error: No URL provided", 400
 
-    scrape_full_reviews_to_json(url=url, max_pages=5)
-    return render_template('results.html')
+    try:
+        # Scrape reviews and save to JSON
+        scrape_full_reviews_to_json(url=url, max_pages=5)
+        return render_template('results.html')
+    except Exception as e:
+        app.logger.error(f"Error during scraping: {str(e)}")
+        return f"Error occurred during scraping: {str(e)}", 500
 
 
 @app.route('/word_cloud')
