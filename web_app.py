@@ -1,7 +1,8 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 import src.main as analyze_reviews
 import threading
 import json
+from api.scrap_reviews import scrape_full_reviews_to_json
 from model.word_cloud_analyzer import WordCloudAnalyzer
 
 app = Flask(__name__)
@@ -9,7 +10,17 @@ analysis_status = {"running": False, "completed": False, "error": None}
 
 @app.route('/')
 def home():
+    return render_template('index.html')
+
+@app.route('/scrape', methods=['POST'])
+def scrape_reviews():
+    url = request.form.get('restaurant_url')
+    if not url:
+        return "Error: No URL provided", 400
+
+    scrape_full_reviews_to_json(url=url, max_pages=5)
     return render_template('results.html')
+
 
 @app.route('/word_cloud')
 def word_cloud():
